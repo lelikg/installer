@@ -53,7 +53,7 @@ $emailResults = isset($options['e']) ? $options['e'] : null;
 
 $upgrade = false;
 if(isset($options['g']))
-	$upgrade = is_bool($options['g']) ? '6' : $options['g']; // if version not specified, upgrade from falcon
+	$upgrade = is_bool($options['g']) ? '7' : $options['g']; // if version not specified, upgrade from falcon
 
 // start the log
 $logPath = __DIR__ . '/install.' . date("Y.m.d_H.i.s") . '.log';
