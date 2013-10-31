@@ -1007,6 +1007,8 @@ class Installer
 		if(!in_array('sphinx', $this->components))
 			return true;
 			
+		OsUtils::execute("/etc/init.d/memcached restart");
+		
 		if(AppConfig::get(AppConfigAttribute::UPGRADE_FROM_VERSION))
 		{
 			Logger::logMessage(Logger::LEVEL_INFO, "Populating old content to the sphinx");
