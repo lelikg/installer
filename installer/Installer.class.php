@@ -1071,24 +1071,40 @@ class Installer
 	{
 		if (AppConfig::get(AppConfigAttribute::UPGRADE_FROM_VERSION) && AppConfig::get(AppConfigAttribute::UPGRADE_FROM_VERSION) >= 6)
 		{
+			Logger::logMessage (Logger::LEVEL_INFO,"Inserting default content into DB as created");
 			$link = mysql_connect(AppConfig::get(AppConfigAttribute::DB1_HOST) . ':' . AppConfig::get(AppConfigAttribute::DB1_PORT), AppConfig::get(AppConfigAttribute::DB1_USER), AppConfig::get(AppConfigAttribute::DB1_PASS), null);
 			$db_selected = mysql_select_db(AppConfig::get(AppConfigAttribute::DB1_NAME), $link);
 			try
 			{
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.accessControl.xml', '". time() ."')");
+				mysql_free_result($result);
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.conversionProfile.99.xml', '". time() ."')");
+				mysql_free_result($result);
+				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.conversionProfile.-4.xml', '". time() ."')");
+				mysql_free_result($result);
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.uiConf.99.xml', '". time() ."')");
+				mysql_free_result($result);
+				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.uiConf.-4.xml', '". time() ."')");
+				mysql_free_result($result);
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.UserRole.-2.xml', '". time() ."')");
+				mysql_free_result($result);
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.UserRole.99.xml', '". time() ."')");
+				mysql_free_result($result);
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '02.entry.99.xml', '". time() ."')");
+				mysql_free_result($result);
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '02.playlist.99.xml', '". time() ."')");
+				mysql_free_result($result);
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '03.EventNotificationTemplate.0.xml', '". time() ."')");
+				mysql_free_result($result);
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '04.dropFolder.-4.xml', '". time() ."')");
+				mysql_free_result($result);
 			}
 			catch (Exception $e)
 			{
 				Logger::logMessage(Logger::LEVEL_ERROR, $e->getMessage());
 			}	
+			
+			mysql_close($link);
 		}
 	}
 }
