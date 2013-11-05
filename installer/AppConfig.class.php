@@ -937,6 +937,7 @@ class AppConfig
 						continue;
 					}
 					
+					$hostConfig[AppConfigAttribute::DB1_CREATE_NEW_DWH] = true;
 				}
 
 				if($component == 'ssl')
