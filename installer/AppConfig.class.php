@@ -392,10 +392,6 @@ class AppConfig
 
 				self::getInput(AppConfigAttribute::SPHINX_SERVER1, "Sphinx host (leave empty to use 127.0.0.1).", null, InputValidator::createHostValidator(), '127.0.0.1');
 
-				self::getInput(AppConfigAttribute::DWH_HOST, "Data Warehouse host (leave empty for 'localhost')", "Must be a valid hostname or ip, please enter again (leave empty for 'localhost')", InputValidator::createHostValidator(), 'localhost');
-				
-				self::getInput(AppConfigAttribute::DWH_PORT, "Data Warehouse port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
-				
 				if(is_array(self::$components) && in_array('ssl', self::$components))
 					self::initField(AppConfigAttribute::ENVIRONMENT_PROTOCOL, 'https');
 				else
@@ -940,8 +936,6 @@ class AppConfig
 						Logger::logColorMessage(Logger::COLOR_LIGHT_RED, Logger::LEVEL_USER, "Data warehouse server is already defined and won't be installed on $hostname.");
 						continue;
 					}
-					self::set(AppConfigAttribute::DWH_HOST, $hostname);
-					self::getInput(AppConfigAttribute::SPHINX_DB_PORT, " DWH port (leave empty for '3306')", "Must be a valid port (1-65535), please enter again (leave empty for '3306')", InputValidator::createRangeValidator(1, 65535), '3306');
 					
 				}
 
