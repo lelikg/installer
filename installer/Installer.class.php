@@ -1077,27 +1077,16 @@ class Installer
 			try
 			{
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.accessControl.xml', '". time() ."')");
-				mysql_free_result($result);
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.conversionProfile.99.xml', '". time() ."')");
-				mysql_free_result($result);
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.conversionProfile.-4.xml', '". time() ."')");
-				mysql_free_result($result);
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.uiConf.99.xml', '". time() ."')");
-				mysql_free_result($result);
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.uiConf.-4.xml', '". time() ."')");
-				mysql_free_result($result);
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.UserRole.-2.xml', '". time() ."')");
-				mysql_free_result($result);
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.UserRole.99.xml', '". time() ."')");
-				mysql_free_result($result);
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '02.entry.99.xml', '". time() ."')");
-				mysql_free_result($result);
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '02.playlist.99.xml', '". time() ."')");
-				mysql_free_result($result);
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '03.EventNotificationTemplate.0.xml', '". time() ."')");
-				mysql_free_result($result);
 				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '04.dropFolder.-4.xml', '". time() ."')");
-				mysql_free_result($result);
 			}
 			catch (Exception $e)
 			{
