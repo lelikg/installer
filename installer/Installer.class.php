@@ -956,7 +956,7 @@ class Installer
 			$arguments .= ' -p ' . AppConfig::get(AppConfigAttribute::DB_ROOT_PASS);
 			
 		$config = AppConfig::getCurrentMachineConfig();
-		if($config && isset ($config[AppConfigAttribute::DB1_CREATE_NEW_DB]) && $config[AppConfigAttribute::DB1_CREATE_NEW_DB])
+		if($config && isset ($config[AppConfigAttribute::DB1_CREATE_NEW_DWH]) && $config[AppConfigAttribute::DB1_CREATE_NEW_DWH])
 		{
 			Logger::logMessage(Logger::LEVEL_INFO, "Creating data warehouse");
 			$cmd = sprintf("%s/setup/dwh_setup.sh $arguments", AppConfig::get(AppConfigAttribute::DWH_DIR));	
