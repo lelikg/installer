@@ -564,20 +564,20 @@ class AppConfig
 		self::initField(AppConfigAttribute::UNSUBSCRIBE_EMAIL_URL, self::get(AppConfigAttribute::ENVIRONMENT_PROTOCOL) . '://' . self::get(AppConfigAttribute::KALTURA_FULL_VIRTUAL_HOST_NAME) . '/index.php/extwidget/blockMail?e=');
 
 		self::initField(AppConfigAttribute::OS_ROOT_USER, (isset($_SERVER['USER']) ? $_SERVER['USER'] : 'root'));
-		self::initField(AppConfigAttribute::OS_APACHE_USER, 'apache');
+		self::initField(AppConfigAttribute::OS_APACHE_USER, OsUtils::findUser(array('apache','www-data')));
 		self::initField(AppConfigAttribute::OS_KALTURA_USER, 'kaltura');
 		self::initField(AppConfigAttribute::OS_NAGIOS_USER, 'nagios');
 		self::initField(AppConfigAttribute::OS_ROOT_GROUP, self::get(AppConfigAttribute::OS_ROOT_USER));
-		self::initField(AppConfigAttribute::OS_APACHE_GROUP, self::get(AppConfigAttribute::OS_APACHE_USER));
+		self::initField(AppConfigAttribute::OS_APACHE_GROUP, OsUtils::findGroup(array('apache','www-data')));
 		self::initField(AppConfigAttribute::OS_KALTURA_GROUP, self::get(AppConfigAttribute::OS_KALTURA_USER));
 		self::initField(AppConfigAttribute::OS_NAGIOS_GROUP, self::get(AppConfigAttribute::OS_NAGIOS_USER));
 		
 		self::initField(AppConfigAttribute::OS_ROOT_UID, 0); // that's how it's created by the OS
-		self::initField(AppConfigAttribute::OS_APACHE_UID, 48); // that's how it's created by the apache
-		self::initField(AppConfigAttribute::OS_KALTURA_UID, 613); // the number doesn't matter, as long as it's identical in all machine in the environment
+		self::initField(AppConfigAttribute::OS_APACHE_UID, OsUtils::getUid(self::get(AppConfigAttribute::OS_APACHE_USER))); // that's how it's created by the apache
+		self::initField(AppConfigAttribute::OS_KALTURA_UID, OsUtils::getUid(self::get(AppConfigAttribute::OS_KALTURA_USER))); // the number doesn't matter, as long as it's identical in all machine in the environment
 		self::initField(AppConfigAttribute::OS_ROOT_GID, self::get(AppConfigAttribute::OS_ROOT_UID));
-		self::initField(AppConfigAttribute::OS_APACHE_GID, self::get(AppConfigAttribute::OS_APACHE_UID));
-		self::initField(AppConfigAttribute::OS_KALTURA_GID, self::get(AppConfigAttribute::OS_KALTURA_UID));
+		self::initField(AppConfigAttribute::OS_APACHE_GID, OsUtils::getGid(self::get(AppConfigAttribute::OS_APACHE_GROUP)));
+		self::initField(AppConfigAttribute::OS_KALTURA_GID, OsUtils::getGid(self::get(AppConfigAttribute::OS_KALTURA_GROUP)));
 
 		self::initField(AppConfigAttribute::REPORT_ADMIN_EMAIL, '');
 		self::initField(AppConfigAttribute::TRACK_KDPWRAPPER, 'false');
@@ -1449,4 +1449,9 @@ class AppConfig
 
 		return $input;
 	}
+
+
+
+
+
 }

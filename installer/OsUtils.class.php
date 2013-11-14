@@ -360,6 +360,111 @@ class OsUtils {
 		return null;
 	}
 
+
+    /**
+     * Execute 'id -u $user', to see if user exists
+     * @param string or array $userName
+     * @return string or null
+     */
+    public static function findUser($userName)
+    {
+        if(!OsUtils::isLinux())
+            return null;
+
+        if (!is_array($userName))
+            $userName = array ($userName);
+
+        foreach ($userName as $user)
+        {
+            $uid = OsUtils::executeWithOutput("id -u ".$user);
+            if($uid)
+            {
+                $count = trim(reset($uid));
+                if(is_numeric($count) && intval($count) > 0)
+                {
+                    Logger::logMessage(Logger::LEVEL_INFO, "User $user found and has UID of ".$uid);
+                    return $user;
+                }
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Execute 'getent group $group | cut -d: -f3', to see if group exists
+     * @param string or array $groupName
+     * @return string or null
+     */
+    public static function findGroup($groupName)
+    {
+        if(!OsUtils::isLinux())
+            return null;
+
+        if (!is_array($groupName))
+            $groupName = array ($groupName);
+
+        foreach ($groupName as $group)
+        {
+            $gid = OsUtils::executeWithOutput("id -u ".$group);
+            if($gid)
+            {
+                $count = trim(reset($gid));
+                if(is_numeric($count) && intval($count) > 0)
+                {
+                    Logger::logMessage(Logger::LEVEL_INFO, "User $group found and has UID of ".$gid);
+                    return $group;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Execute 'id -u $user', to get the UID
+     * @param string  $user
+     * @return string or null
+     */
+    public static function getUid($user)
+    {
+        if(!OsUtils::isLinux())
+            return null;
+
+        $uid = OsUtils::executeWithOutput("id -u ".$user);
+        if($uid && count($uid))
+        {
+            $uid = trim(reset($uid));
+            Logger::logMessage(Logger::LEVEL_INFO, "User $user found and has UID of ".$uid);
+            return $uid;
+        }
+
+        return null;
+    }
+
+    /**
+     * Execute 'getent group $group | cut -d: -f3', to get the Group ID
+     * @param string  $group
+     * @return string or null
+     */
+    public static function getGid($group)
+    {
+        if(!OsUtils::isLinux())
+            return null;
+
+        $gid = OsUtils::executeWithOutput('getent group '.$group.' | cut -d: -f3');
+        if($gid && count($gid))
+        {
+            $gid = trim(reset($gid));
+            Logger::logMessage(Logger::LEVEL_INFO, "Group $group found and has GID of ".$gid);
+            return $gid;
+        }
+
+        return null;
+    }
+
+
 	/**
 	 * Execute 'service --status-all', grepping on each of the given $serviceName (array or string) and returns the first one found (null if not found)
 	 * @param string $file_name
@@ -375,13 +480,16 @@ class OsUtils {
 
 		foreach ($serviceName as $service)
 		{
-			$output = OsUtils::executeWithOutput("service --status-all 2>&1 | grep -c httpd");
-			$count = trim(reset($output));
-			if(is_numeric($count) && intval($count) > 0)
-			{
-				Logger::logMessage(Logger::LEVEL_INFO, "Service $service found");
-				return $service;
-			}
+			$output = OsUtils::executeWithOutput("service --status-all 2>&1 | grep -c ".$service);
+            if($output)
+            {
+                $count = trim(reset($output));
+                if(is_numeric($count) && intval($count) > 0)
+                {
+                    Logger::logMessage(Logger::LEVEL_INFO, "Service $service found");
+                    return $service;
+                }
+            }
 		}
 
 		return null;

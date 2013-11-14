@@ -884,7 +884,7 @@ class Installer
 			foreach($this->installConfig[Installer::BASE_COMPONENT]['uiconfs_2'] as $uiconfapp)
 			{
 				$to_deploy = AppConfig::replaceTokensInString($uiconfapp);
-				if(OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy_v2.php --ini=%s", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), $to_deploy)))
+				if(OsUtils::execute(sprintf("%s %s/deployment/uiconf/deploy_v2.php --ini=%s --user=%s", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR), $to_deploy, AppConfig::get(AppConfigAttribute::OS_APACHE_USER) )))
 				{
 					Logger::logMessage(Logger::LEVEL_INFO, "Deployed user interface configuration files $to_deploy");
 				}
@@ -954,12 +954,13 @@ class Installer
 		$arguments = sprintf('-h %s -P %s -u %s -d %s', AppConfig::get(AppConfigAttribute::DB1_HOST), AppConfig::get(AppConfigAttribute::DB1_PORT), AppConfig::get(AppConfigAttribute::DB_ROOT_USER), AppConfig::get(AppConfigAttribute::DWH_DIR));
 		if (AppConfig::get(AppConfigAttribute::DB_ROOT_PASS))
 			$arguments .= ' -p ' . AppConfig::get(AppConfigAttribute::DB_ROOT_PASS);
-			
-		$config = AppConfig::getCurrentMachineConfig();
-		if($config && isset ($config[AppConfigAttribute::DB1_CREATE_NEW_DWH]) && $config[AppConfigAttribute::DB1_CREATE_NEW_DWH])
+        else // script fails with empty pass, instead add "-p ''"
+            $arguments .= " -p ''";
+
+		if(AppConfig::get(AppConfigAttribute::DB1_CREATE_NEW_DB))
 		{
 			Logger::logMessage(Logger::LEVEL_INFO, "Creating data warehouse");
-			$cmd = sprintf("%s/setup/dwh_setup.sh $arguments", AppConfig::get(AppConfigAttribute::DWH_DIR));	
+			$cmd = sprintf("%s/setup/dwh_setup.sh $arguments", AppConfig::get(AppConfigAttribute::DWH_DIR));
 			if (!OsUtils::execute($cmd)){
 				return "Failed running data warehouse initialization script";
 			}
@@ -967,7 +968,7 @@ class Installer
 		elseif(AppConfig::get(AppConfigAttribute::UPGRADE_FROM_VERSION))
 		{
 			Logger::logMessage(Logger::LEVEL_INFO, "Upgrading data warehouse");
-			$cmd = sprintf("%s/ddl/migrations/20130922_gemini_to_IX/gemini2IX.sh $arguments", AppConfig::get(AppConfigAttribute::DWH_DIR));
+			$cmd = sprintf("%s/ddl/migrations/20130606_falcon_to_gemini/Falcon2Gemini.sh $arguments", AppConfig::get(AppConfigAttribute::DWH_DIR));
 			if (!OsUtils::execute($cmd)){
 				return "Failed running data warehouse upgrade script";
 			}
@@ -1008,8 +1009,6 @@ class Installer
 		if(!in_array('sphinx', $this->components))
 			return true;
 			
-		OsUtils::execute("/etc/init.d/memcached restart");
-		
 		if(AppConfig::get(AppConfigAttribute::UPGRADE_FROM_VERSION))
 		{
 			Logger::logMessage(Logger::LEVEL_INFO, "Populating old content to the sphinx");
@@ -1052,7 +1051,6 @@ class Installer
 		elseif(!AppConfig::get(AppConfigAttribute::VERIFY_INSTALLATION))
 			return true;
 			
-		$this->determineInsertedContent ();
 		Logger::logMessage(Logger::LEVEL_USER, "Creating partner template content");
 		if (OsUtils::execute(sprintf("%s %s/deployment/base/scripts/insertContent.php", AppConfig::get(AppConfigAttribute::PHP_BIN), AppConfig::get(AppConfigAttribute::APP_DIR)))) {
 			Logger::logMessage(Logger::LEVEL_INFO, "Default content inserted");
@@ -1062,39 +1060,5 @@ class Installer
 		}
 
 		return true;
-	}
-	
-	/**
-	 * This function will become deprecated as of version 8. It forcefully adds the entries for the previously created content into the version_management table of the Kaltura DB if it is empty and the installation 
-	 * is running upgrade mode.
-	 */
-	private function determineInsertedContent ()
-	{
-		if (AppConfig::get(AppConfigAttribute::UPGRADE_FROM_VERSION) && AppConfig::get(AppConfigAttribute::UPGRADE_FROM_VERSION) >= 6)
-		{
-			Logger::logMessage (Logger::LEVEL_INFO,"Inserting default content into DB as created");
-			$link = mysql_connect(AppConfig::get(AppConfigAttribute::DB1_HOST) . ':' . AppConfig::get(AppConfigAttribute::DB1_PORT), AppConfig::get(AppConfigAttribute::DB1_USER), AppConfig::get(AppConfigAttribute::DB1_PASS), null);
-			$db_selected = mysql_select_db(AppConfig::get(AppConfigAttribute::DB1_NAME), $link);
-			try
-			{
-				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.accessControl.xml', '". time() ."')");
-				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.conversionProfile.99.xml', '". time() ."')");
-				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.conversionProfile.-4.xml', '". time() ."')");
-				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.uiConf.99.xml', '". time() ."')");
-				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.uiConf.-4.xml', '". time() ."')");
-				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.UserRole.-2.xml', '". time() ."')");
-				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '01.UserRole.99.xml', '". time() ."')");
-				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '02.entry.99.xml', '". time() ."')");
-				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '02.playlist.99.xml', '". time() ."')");
-				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '03.EventNotificationTemplate.0.xml', '". time() ."')");
-				$result =   mysql_query("insert into version_management (version, filename, created_at) values ('7000', '04.dropFolder.-4.xml', '". time() ."')");
-			}
-			catch (Exception $e)
-			{
-				Logger::logMessage(Logger::LEVEL_ERROR, $e->getMessage());
-			}	
-			
-			mysql_close($link);
-		}
 	}
 }
